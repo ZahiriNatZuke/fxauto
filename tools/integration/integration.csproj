@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Task 8 integration run against the real FxSound (not shipped, not in FxAuto.sln). Uses the real controller,
+       preset operations, port and preset file store. Never kills, closes or relaunches FxSound; the closed and
+       elevated cases are simulated with a wrapper port that reports them and counts any command that would be sent.
+       Usage: integration <logFile> [presetsBackupFolder] -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>FxAuto.Integration</RootNamespace>
+    <!-- throwaway harness: warnings stay visible but do not block the run -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FxAuto.Core\FxAuto.Core.csproj" />
+    <Compile Include="..\..\src\FxAuto\Native.cs" Link="Linked\Native.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\FacFile.cs" Link="Linked\FacFile.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\PresetFileStore.cs" Link="Linked\PresetFileStore.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\FxSoundPort.cs" Link="Linked\FxSoundPort.cs" />
+  </ItemGroup>
+</Project>

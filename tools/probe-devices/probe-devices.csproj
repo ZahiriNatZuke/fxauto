@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Manual check for task 4b (not shipped, not in FxAuto.sln): prints the EndpointSnapshot the device monitor
+       produces, the effective output and the preset files FxSound's status lists. Read-only: never sends a command
+       to FxSound, never changes a device or a Windows default, never writes a preset file. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>FxAuto.ProbeDevices</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FxAuto.Core\FxAuto.Core.csproj" />
+    <Compile Include="..\..\src\FxAuto\Devices\EndpointMapping.cs" Link="Linked\EndpointMapping.cs" />
+    <Compile Include="..\..\src\FxAuto\Devices\EndpointEnumerator.cs" Link="Linked\EndpointEnumerator.cs" />
+    <Compile Include="..\..\src\FxAuto\Devices\DeviceMonitor.cs" Link="Linked\DeviceMonitor.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\FacFile.cs" Link="Linked\FacFile.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\PresetFileStore.cs" Link="Linked\PresetFileStore.cs" />
+  </ItemGroup>
+</Project>

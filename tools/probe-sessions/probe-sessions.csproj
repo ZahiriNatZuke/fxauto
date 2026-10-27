@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Manual check for task 4a (not shipped, not in FxAuto.sln): prints AudioSnapshots, CPU and memory.
+       Read-only: never plays sound, never changes devices. Links the real monitor sources. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>FxAuto.ProbeSessions</RootNamespace>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FxAuto.Core\FxAuto.Core.csproj" />
+    <Compile Include="..\..\src\FxAuto\Native.cs" Link="Linked\Native.cs" />
+    <Compile Include="..\..\src\FxAuto\Audio\*.cs" Link="Linked\Audio\%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

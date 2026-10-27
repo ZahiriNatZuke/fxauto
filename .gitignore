@@ -1,0 +1,13 @@
+bin/
+obj/
+dist/
+.vs/
+*.user
+dist-v1/
+installer/Output/
+installer/staging/
+
+# Internal notes kept on disk, not published
+.sdd/
+docs/investigacion/
+docs/pruebas-fxsound.md

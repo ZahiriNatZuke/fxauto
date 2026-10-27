@@ -1,0 +1,198 @@
+{
+  "version": "1.2.16.0",
+  "power": true,
+  "presets": {
+    "built_in": [
+      {
+        "name": "General",
+        "modified": false
+      },
+      {
+        "name": "Movies",
+        "modified": false
+      },
+      {
+        "name": "TV",
+        "modified": false
+      },
+      {
+        "name": "Transcription",
+        "modified": false
+      },
+      {
+        "name": "Music",
+        "modified": false
+      },
+      {
+        "name": "Voice",
+        "modified": false
+      },
+      {
+        "name": "Volume Boost",
+        "modified": false
+      },
+      {
+        "name": "Gaming",
+        "modified": false
+      },
+      {
+        "name": "Classic Processing",
+        "modified": false
+      },
+      {
+        "name": "Light Processing",
+        "modified": false
+      },
+      {
+        "name": "Bass Boost",
+        "modified": false
+      },
+      {
+        "name": "Streaming Video",
+        "modified": false
+      },
+      {
+        "name": "Default",
+        "modified": false
+      }
+    ],
+    "user_defined": [
+      {
+        "name": "G435_Accion",
+        "modified": false
+      },
+      {
+        "name": "G435_Carreras",
+        "modified": false
+      },
+      {
+        "name": "G435_Cine",
+        "modified": false
+      },
+      {
+        "name": "G435_CineNoche",
+        "modified": false
+      },
+      {
+        "name": "G435_DeporteTV",
+        "modified": false
+      },
+      {
+        "name": "G435_Estrategia",
+        "modified": false
+      },
+      {
+        "name": "G435_FPS",
+        "modified": false
+      },
+      {
+        "name": "G435_General",
+        "modified": false
+      },
+      {
+        "name": "G435_JuegoDeporte",
+        "modified": false
+      },
+      {
+        "name": "G435_MOBA",
+        "modified": false
+      },
+      {
+        "name": "G435_Musica",
+        "modified": false
+      },
+      {
+        "name": "G435_RPG",
+        "modified": false
+      },
+      {
+        "name": "G435_Terror",
+        "modified": false
+      },
+      {
+        "name": "G435_TPS",
+        "modified": false
+      },
+      {
+        "name": "G435_Video",
+        "modified": false
+      },
+      {
+        "name": "G435_Voz",
+        "modified": false
+      }
+    ]
+  },
+  "selected_preset": "G435_Video",
+  "output_devices": [
+    "Aud\u00edfono de los auriculares con micr\u00f3fono (G435 Wireless Gaming Headset)",
+    "Altavoces (Realtek(R) Audio)"
+  ],
+  "selected_output": "Aud\u00edfono de los auriculares con micr\u00f3fono (G435 Wireless Gaming Headset)",
+  "equalizer": {
+    "num_bands": 10,
+    "master_gain": -2.0,
+    "volume_leveling": 1.5,
+    "filter_q": 1.0,
+    "balance": 0.0,
+    "bands": [
+      {
+        "index": 0,
+        "frequency": 62.5,
+        "gain": -2.0
+      },
+      {
+        "index": 1,
+        "frequency": 116.0,
+        "gain": -3.0
+      },
+      {
+        "index": 2,
+        "frequency": 214.0,
+        "gain": -2.0
+      },
+      {
+        "index": 3,
+        "frequency": 397.0,
+        "gain": 0.0
+      },
+      {
+        "index": 4,
+        "frequency": 735.0,
+        "gain": 2.0
+      },
+      {
+        "index": 5,
+        "frequency": 1360.0,
+        "gain": 1.0
+      },
+      {
+        "index": 6,
+        "frequency": 2520.0,
+        "gain": -2.0
+      },
+      {
+        "index": 7,
+        "frequency": 4670.0,
+        "gain": 2.0
+      },
+      {
+        "index": 8,
+        "frequency": 8640.0,
+        "gain": -1.0
+      },
+      {
+        "index": 9,
+        "frequency": 16000.0,
+        "gain": 0.0
+      }
+    ]
+  },
+  "effects": {
+    "clarity": 1.023622035980225,
+    "ambience": 0.0,
+    "surround": 0.0,
+    "dynamicboost": 0.0,
+    "bass": 0.0
+  }
+}

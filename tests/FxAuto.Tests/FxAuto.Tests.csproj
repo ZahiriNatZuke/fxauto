@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FxAuto.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FxAuto.Core\FxAuto.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Task 4c: platform-neutral tab read worker (timeout / disable logic) tested with a fake reader. -->
+    <Compile Include="..\..\src\FxAuto\Browser\TabReadWorker.cs" Link="Linked\TabReadWorker.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- real status.json of FxSound 1.2.16.0, copied on 2026-10-25 -->
+    <None Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Task 4a: pure files of the Windows audio layer (no Win32), compiled here for unit tests. -->
+    <Compile Include="..\..\src\FxAuto\Audio\ProcessTreeLogic.cs" Link="Linked\ProcessTreeLogic.cs" />
+    <Compile Include="..\..\src\FxAuto\Audio\AudioSnapshotBuilder.cs" Link="Linked\AudioSnapshotBuilder.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Task 4b: pure files of the device layer and the preset file store (System.IO only, no Win32). -->
+    <Compile Include="..\..\src\FxAuto\Devices\EndpointMapping.cs" Link="Linked\EndpointMapping.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\FacFile.cs" Link="Linked\FacFile.cs" />
+    <Compile Include="..\..\src\FxAuto\FxSound\PresetFileStore.cs" Link="Linked\PresetFileStore.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Task 5: platform-neutral coordinator helpers and the config store (System.IO only). -->
+    <Compile Include="..\..\src\FxAuto\App\CoordinatorLogic.cs" Link="Linked\CoordinatorLogic.cs" />
+    <Compile Include="..\..\src\FxAuto\App\ConfigStore.cs" Link="Linked\ConfigStore.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Update engine service (HttpClient with a fake handler; never reaches GitHub in tests). -->
+    <Compile Include="..\..\src\FxAuto\App\UpdateService.cs" Link="Linked\UpdateService.cs" />
+    <Compile Include="..\..\src\FxAuto\App\UpdateContracts.cs" Link="Linked\UpdateContracts.cs" />
+  </ItemGroup>
+</Project>

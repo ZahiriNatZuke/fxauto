@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Task 6 dev tool (not shipped, not in FxAuto.sln): opens the settings window on FakeSettingsHost, takes
+       screenshots of that window only and measures memory. Never runs FxAuto itself (no mutex, no exit event).
+       Build it in Debug: FakeSettingsHost is DEBUG-only. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>FxAuto.SettingsPreview</RootNamespace>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FxAuto.Core\FxAuto.Core.csproj" />
+    <Compile Include="..\..\src\FxAuto\App\Contracts.cs" Link="Linked\App\Contracts.cs" />
+    <Compile Include="..\..\src\FxAuto\App\UpdateContracts.cs" Link="Linked\App\UpdateContracts.cs" />
+    <Compile Include="..\..\src\FxAuto\Ui\Settings\*.cs" Link="Linked\Ui\Settings\%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

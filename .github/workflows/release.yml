@@ -1,0 +1,147 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+# Least privilege by default; only the release job below may write.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  release:
+    name: Build installer and publish release
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write # create the GitHub Release and upload its assets
+    defaults:
+      run:
+        shell: pwsh
+    # Optional code signing: uncomment together with the "Sign installer" step below.
+    # env:
+    #   SIGN_CERT_BASE64: ${{ secrets.SIGN_CERT_BASE64 }}
+    #   SIGN_CERT_PASSWORD: ${{ secrets.SIGN_CERT_PASSWORD }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      # The tag must match the product version. A pre-release tag (v1.1.0-beta.1) is accepted when the
+      # project's Version is either the full "1.1.0-beta.1" or just "1.1.0".
+      - name: Check tag matches project version
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $projectVersion = (dotnet msbuild src/FxAuto/FxAuto.csproj -getProperty:Version).Trim()
+          if ($LASTEXITCODE -ne 0 -or -not $projectVersion) { throw 'Could not read Version from src/FxAuto/FxAuto.csproj' }
+          if ($env:TAG -notmatch '^v(\d+\.\d+\.\d+)(-[0-9A-Za-z.-]+)?$') {
+            Write-Output "::error::Tag '$env:TAG' is not vX.Y.Z or vX.Y.Z-suffix."
+            exit 1
+          }
+          $core = $Matches[1]
+          $full = $env:TAG.Substring(1)
+          if ($projectVersion -ne $full -and $projectVersion -ne $core) {
+            Write-Output "::error::Tag '$env:TAG' does not match <Version> '$projectVersion' in src/FxAuto/FxAuto.csproj. Bump the project version (or fix the tag) and tag again."
+            exit 1
+          }
+          $prerelease = if ($env:TAG.Contains('-')) { 'true' } else { 'false' }
+          "version=$core" >> $env:GITHUB_OUTPUT
+          "prerelease=$prerelease" >> $env:GITHUB_OUTPUT
+          Write-Output "Tag $env:TAG matches project version $projectVersion (installer version $core, pre-release: $prerelease)."
+
+      - name: Restore
+        run: dotnet restore FxAuto.sln
+
+      - name: Build (Release, warnings are errors)
+        run: dotnet build FxAuto.sln -c Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet run --project tests/FxAuto.Tests -c Release --no-build
+
+      # build.ps1 looks for ISCC.exe on PATH and in the usual Inno Setup 6 folders.
+      - name: Ensure Inno Setup 6
+        run: |
+          $known = @(
+            (Get-Command ISCC.exe -ErrorAction SilentlyContinue)?.Source,
+            (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'),
+            (Join-Path $env:ProgramFiles 'Inno Setup 6\ISCC.exe')
+          ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if ($known) { Write-Output "Inno Setup already present: $known"; exit 0 }
+          choco install innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "choco install innosetup failed ($LASTEXITCODE)" }
+
+      - name: Build installer
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./installer/build.ps1 -Version "v$env:VERSION"
+
+      # Optional code signing of the installer. Uncomment (and the job env above) once the
+      # SIGN_CERT_BASE64 / SIGN_CERT_PASSWORD secrets exist; it is skipped when they are empty.
+      # Must run before the checksum is computed.
+      # - name: Sign installer
+      #   if: ${{ env.SIGN_CERT_BASE64 != '' && env.SIGN_CERT_PASSWORD != '' }}
+      #   env:
+      #     VERSION: ${{ steps.version.outputs.version }}
+      #   run: |
+      #     $pfx = Join-Path $env:RUNNER_TEMP 'sign.pfx'
+      #     [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGN_CERT_BASE64))
+      #     try {
+      #       $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+      #         Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+      #       & $signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 `
+      #         /f $pfx /p $env:SIGN_CERT_PASSWORD "installer/Output/FxAuto-Setup-$env:VERSION.exe"
+      #       if ($LASTEXITCODE -ne 0) { throw "signtool failed ($LASTEXITCODE)" }
+      #     } finally { Remove-Item $pfx -Force -ErrorAction SilentlyContinue }
+
+      # Same format as sha256sum: "<lowercase hex>  <file name>" (two spaces), LF, no BOM.
+      - name: Compute SHA-256
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $name = "FxAuto-Setup-$env:VERSION.exe"
+          $exe = Join-Path 'installer/Output' $name
+          if (-not (Test-Path $exe)) { throw "Installer not found: $exe" }
+          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $exe).Hash.ToLowerInvariant()
+          [IO.File]::WriteAllText((Join-Path (Get-Location) "$exe.sha256"), "$hash  $name`n", [Text.UTF8Encoding]::new($false))
+          Get-Content "$exe.sha256"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          $exe = "installer/Output/FxAuto-Setup-$env:VERSION.exe"
+          $ghArgs = @('release', 'create', $env:TAG, $exe, "$exe.sha256",
+                    '--repo', $env:GITHUB_REPOSITORY, '--verify-tag', '--generate-notes',
+                    '--title', "FxAuto $($env:TAG.Substring(1))")
+          if ($env:PRERELEASE -eq 'true') { $ghArgs += '--prerelease' } else { $ghArgs += '--latest' }
+          gh @ghArgs
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed ($LASTEXITCODE)" }

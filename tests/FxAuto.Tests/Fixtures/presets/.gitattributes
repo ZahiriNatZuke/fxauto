@@ -1,0 +1,2 @@
+# Real FxSound preset files: keep the bytes (CRLF) exactly as copied.
+*.fac -text
